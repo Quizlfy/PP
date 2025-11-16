@@ -1,0 +1,1864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget Tracker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0f;
+            min-height: 100vh;
+            padding: 12px;
+            color: #ffffff;
+            position: relative;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(139, 92, 246, 0.4) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(236, 72, 153, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 60% 60%, rgba(16, 185, 129, 0.2) 0%, transparent 50%);
+            animation: backgroundFloat 25s ease-in-out infinite;
+            pointer-events: none;
+            filter: blur(60px);
+        }
+
+        @keyframes backgroundFloat {
+            0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+            25% { transform: translate(5%, 5%) rotate(5deg) scale(1.1); }
+            50% { transform: translate(-5%, 10%) rotate(-5deg) scale(0.95); }
+            75% { transform: translate(10%, -5%) rotate(3deg) scale(1.05); }
+        }
+
+        .container {
+            max-width: 100%;
+            width: 100%;
+            margin: 0 auto;
+            background: rgba(17, 24, 39, 0.85);
+            border-radius: 24px;
+            box-shadow: 
+                0 30px 80px rgba(0, 0, 0, 0.6),
+                0 0 0 1px rgba(139, 92, 246, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        @media (min-width: 480px) {
+            .container {
+                max-width: 480px;
+                border-radius: 32px;
+            }
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 100%;
+            background: linear-gradient(180deg, 
+                rgba(139, 92, 246, 0.1) 0%, 
+                transparent 50%,
+                rgba(236, 72, 153, 0.05) 100%
+            );
+            pointer-events: none;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 50%, #ec4899 100%);
+            padding: 40px 25px 35px;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 
+                0 10px 40px rgba(139, 92, 246, 0.5),
+                inset 0 -1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: 
+                radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 70% 50%, rgba(255, 255, 255, 0.15) 0%, transparent 50%);
+            animation: headerPulse 20s ease-in-out infinite;
+        }
+
+        @keyframes headerPulse {
+            0%, 100% { transform: translate(0, 0) scale(1) rotate(0deg); }
+            50% { transform: translate(5%, 5%) scale(1.05) rotate(2deg); }
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, 
+                transparent,
+                rgba(255, 255, 255, 0.8),
+                transparent
+            );
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-icon {
+            font-size: 56px;
+            margin: 0 auto 18px;
+            animation: float 3s ease-in-out infinite;
+            display: block;
+            text-shadow: 
+                0 0 30px rgba(255, 255, 255, 0.8),
+                0 0 60px rgba(139, 92, 246, 0.6),
+                0 4px 20px rgba(0, 0, 0, 0.5);
+            filter: drop-shadow(0 0 25px rgba(255, 255, 255, 0.7));
+        }
+
+        @keyframes float {
+            0%, 100% { 
+                transform: translateY(0px) rotate(0deg) scale(1); 
+            }
+            50% { 
+                transform: translateY(-12px) rotate(5deg) scale(1.05); 
+            }
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            font-weight: 900;
+            letter-spacing: -1.5px;
+            font-family: 'Poppins', sans-serif;
+            text-shadow: 
+                0 2px 20px rgba(0, 0, 0, 0.5),
+                0 0 40px rgba(255, 255, 255, 0.3);
+        }
+
+        .header p {
+            font-size: 13px;
+            opacity: 0.95;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            font-family: 'Inter', sans-serif;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .content {
+            padding: 18px 16px;
+            background: transparent;
+            position: relative;
+            z-index: 1;
+        }
+
+        @media (min-width: 480px) {
+            .content {
+                padding: 28px 22px;
+            }
+        }
+
+        .card {
+            background: rgba(30, 41, 59, 0.6);
+            border-radius: 24px;
+            padding: 26px;
+            margin-bottom: 22px;
+            box-shadow: 
+                0 10px 30px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(139, 92, 246, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            background-clip: padding-box;
+            position: relative;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(20px);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, 
+                rgba(139, 92, 246, 0.6), 
+                rgba(99, 102, 241, 0.4), 
+                rgba(236, 72, 153, 0.6)
+            );
+            border-radius: 24px;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.4s;
+            filter: blur(10px);
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        .card:hover {
+            box-shadow: 
+                0 20px 50px rgba(139, 92, 246, 0.4),
+                0 0 0 1px rgba(139, 92, 246, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transform: translateY(-4px);
+            border-color: rgba(139, 92, 246, 0.3);
+        }
+
+        .card h2 {
+            font-size: 19px;
+            background: linear-gradient(135deg, #a78bfa, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 800;
+            font-family: 'Poppins', sans-serif;
+            letter-spacing: -0.5px;
+            filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.5));
+        }
+
+        .card h2 i {
+            font-size: 22px;
+            background: linear-gradient(135deg, #c084fc, #f0abfc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 0 10px rgba(192, 132, 252, 0.6));
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: rgba(30, 41, 59, 0.8);
+            border-radius: 22px;
+            padding: 22px 18px;
+            text-align: center;
+            box-shadow: 
+                0 8px 25px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(139, 92, 246, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, 
+                transparent,
+                rgba(139, 92, 246, 0.8),
+                rgba(99, 102, 241, 0.8),
+                rgba(236, 72, 153, 0.8),
+                transparent
+            );
+            opacity: 0;
+            transition: opacity 0.4s;
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.8);
+        }
+
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.2) 0%, transparent 70%);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .stat-card:hover::after {
+            width: 200%;
+            height: 200%;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px) scale(1.03);
+            box-shadow: 
+                0 15px 45px rgba(139, 92, 246, 0.4),
+                0 0 0 1px rgba(139, 92, 246, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            border-color: rgba(139, 92, 246, 0.4);
+        }
+
+        .stat-card .icon {
+            font-size: 32px;
+            margin: 0 auto 12px;
+            display: block;
+            position: relative;
+            z-index: 1;
+            filter: drop-shadow(0 0 15px currentColor);
+        }
+
+        .stat-card .label {
+            font-size: 9px;
+            color: #9ca3af;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            position: relative;
+            z-index: 1;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .stat-card .value {
+            font-size: 24px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #a78bfa, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -1px;
+            position: relative;
+            z-index: 1;
+            font-family: 'Poppins', sans-serif;
+            filter: drop-shadow(0 0 10px rgba(167, 139, 250, 0.5));
+        }
+
+        @media (min-width: 480px) {
+            .stat-card .label {
+                font-size: 10px;
+                margin-bottom: 12px;
+                letter-spacing: 2px;
+            }
+            
+            .stat-card .value {
+                font-size: 30px;
+                letter-spacing: -1.5px;
+            }
+        }
+
+        .stat-card.danger .value {
+            background: linear-gradient(135deg, #f87171, #fb923c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 0 10px rgba(248, 113, 113, 0.5));
+        }
+
+        .stat-card.success .value {
+            background: linear-gradient(135deg, #34d399, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 0 10px rgba(52, 211, 153, 0.5));
+        }
+
+        .progress-bar {
+            background: rgba(30, 41, 59, 0.8);
+            border-radius: 50px;
+            height: 48px;
+            overflow: hidden;
+            margin-bottom: 18px;
+            box-shadow: 
+                inset 0 3px 10px rgba(0, 0, 0, 0.4),
+                0 4px 20px rgba(0, 0, 0, 0.15);
+            position: relative;
+            border: 2px solid rgba(139, 92, 246, 0.3);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+        }
+
+        .progress-bar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(255, 255, 255, 0.1) 50%, 
+                transparent 100%
+            );
+            animation: shimmer 3s infinite;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #8b5cf6 0%, #a78bfa 50%, #c084fc 75%, #ec4899 100%);
+            border-radius: 50px;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 18px;
+            color: white;
+            font-size: 15px;
+            font-weight: 800;
+            box-shadow: 
+                0 0 30px rgba(139, 92, 246, 0.7),
+                0 4px 15px rgba(0, 0, 0, 0.3),
+                inset 0 2px 0 rgba(255, 255, 255, 0.5),
+                inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+            position: relative;
+            z-index: 1;
+            letter-spacing: 0.5px;
+            text-shadow: 
+                0 2px 4px rgba(0, 0, 0, 0.5),
+                0 0 10px rgba(255, 255, 255, 0.3);
+            box-sizing: border-box;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: linear-gradient(180deg, 
+                rgba(255, 255, 255, 0.3) 0%, 
+                transparent 100%
+            );
+            border-radius: 50px 50px 0 0;
+        }
+
+        .progress-fill.warning {
+            background: linear-gradient(90deg, #f59e0b 0%, #fbbf24 50%, #fb923c 100%);
+            box-shadow: 
+                0 0 30px rgba(251, 146, 60, 0.7),
+                0 4px 15px rgba(0, 0, 0, 0.3),
+                inset 0 2px 0 rgba(255, 255, 255, 0.5),
+                inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .progress-fill.danger {
+            background: linear-gradient(90deg, #ef4444 0%, #f87171 50%, #fb923c 100%);
+            box-shadow: 
+                0 0 30px rgba(239, 68, 68, 0.8),
+                0 4px 15px rgba(0, 0, 0, 0.3),
+                inset 0 2px 0 rgba(255, 255, 255, 0.5),
+                inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { 
+                box-shadow: 
+                    0 0 30px rgba(239, 68, 68, 0.8),
+                    0 4px 15px rgba(0, 0, 0, 0.3),
+                    inset 0 2px 0 rgba(255, 255, 255, 0.5),
+                    inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+            }
+            50% { 
+                box-shadow: 
+                    0 0 40px rgba(239, 68, 68, 1),
+                    0 4px 20px rgba(239, 68, 68, 0.5),
+                    inset 0 2px 0 rgba(255, 255, 255, 0.5),
+                    inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+            }
+        }
+
+        .time-remaining {
+            text-align: center;
+            font-size: 14px;
+            color: #cbd5e1;
+            margin-top: 16px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .time-remaining strong {
+            background: linear-gradient(135deg, #a78bfa, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 16px;
+            font-weight: 900;
+            filter: drop-shadow(0 0 10px rgba(167, 139, 250, 0.5));
+        }
+
+        .daily-average {
+            text-align: center;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(139, 92, 246, 0.2);
+            font-size: 12px;
+            color: #9ca3af;
+            font-weight: 600;
+        }
+
+        .daily-average strong {
+            color: #a78bfa;
+            font-size: 15px;
+            font-weight: 800;
+        }
+
+        .expense-form {
+            background: #fff;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .expense-form h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .expense-list {
+            margin-top: 20px;
+        }
+
+        .expense-item {
+            background: rgba(30, 41, 59, 0.6);
+            border-radius: 20px;
+            padding: 18px 20px;
+            margin-bottom: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 
+                0 6px 20px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(239, 68, 68, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            animation: slideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+        }
+
+        .expense-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(180deg, #f87171, #ef4444);
+            transform: scaleY(0);
+            transition: transform 0.3s;
+            box-shadow: 0 0 15px rgba(248, 113, 113, 0.8);
+        }
+
+        .expense-item:hover::before {
+            transform: scaleY(1);
+        }
+
+        .expense-item:hover {
+            transform: translateX(8px);
+            box-shadow: 
+                0 10px 30px rgba(239, 68, 68, 0.4),
+                0 0 0 1px rgba(239, 68, 68, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .expense-item .info {
+            flex: 1;
+        }
+
+        .expense-item .name {
+            font-weight: 700;
+            color: #f3f4f6;
+            margin-bottom: 5px;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .expense-item .date {
+            font-size: 10px;
+            color: #6b7280;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .expense-item .amount {
+            font-size: 18px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #f87171, #fb923c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+            font-family: 'Poppins', sans-serif;
+            filter: drop-shadow(0 0 10px rgba(248, 113, 113, 0.5));
+        }
+
+        @media (min-width: 480px) {
+            .expense-item .name {
+                font-size: 15px;
+                margin-bottom: 6px;
+            }
+            
+            .expense-item .date {
+                font-size: 11px;
+            }
+            
+            .expense-item .amount {
+                font-size: 20px;
+                letter-spacing: -1px;
+            }
+        }
+
+        .expense-item .delete-btn {
+            background: rgba(239, 68, 68, 0.3);
+            color: white;
+            border: 2px solid rgba(239, 68, 68, 0.5);
+            padding: 10px 14px;
+            border-radius: 12px;
+            cursor: pointer;
+            margin-left: 14px;
+            font-size: 10px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 
+                0 8px 32px rgba(239, 68, 68, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .expense-item .delete-btn:hover {
+            transform: scale(1.05) rotate(-2deg);
+            background: rgba(239, 68, 68, 0.5);
+            border-color: rgba(239, 68, 68, 0.8);
+            box-shadow: 
+                0 12px 40px rgba(239, 68, 68, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        .expense-item .delete-btn:active {
+            transform: scale(1) rotate(0deg);
+            background: rgba(239, 68, 68, 0.4);
+        }
+
+        .expense-item .delete-btn i {
+            font-size: 12px;
+        }
+
+        .empty-state i {
+            font-size: 60px;
+            color: #e0e0e0;
+            margin-bottom: 15px;
+        }
+
+        .alert {
+            padding: 18px 20px;
+            border-radius: 20px;
+            margin-bottom: 22px;
+            font-size: 14px;
+            animation: slideDown 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-weight: 600;
+            box-shadow: 
+                0 8px 25px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            border: 2px solid;
+            backdrop-filter: blur(20px);
+        }
+
+        .alert i {
+            font-size: 22px;
+            flex-shrink: 0;
+            filter: drop-shadow(0 0 10px currentColor);
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Success pulse animation */
+        @keyframes successPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .stat-card.pulse {
+            animation: successPulse 0.5s ease;
+        }
+
+        /* Fade out animation for deleted expenses */
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+        }
+
+        .expense-item.removing {
+            animation: fadeOut 0.3s ease forwards;
+        }
+
+        .expense-item.new {
+            animation: slideIn 0.4s ease;
+        }
+
+        .alert-warning {
+            background: rgba(251, 146, 60, 0.15);
+            color: #fbbf24;
+            border-color: rgba(251, 146, 60, 0.5);
+            box-shadow: 
+                0 8px 25px rgba(251, 146, 60, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        .alert-danger {
+            background: rgba(248, 113, 113, 0.15);
+            color: #fca5a5;
+            border-color: rgba(248, 113, 113, 0.5);
+            box-shadow: 
+                0 8px 25px rgba(248, 113, 113, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        .alert-success {
+            background: rgba(52, 211, 153, 0.15);
+            color: #6ee7b7;
+            border-color: rgba(52, 211, 153, 0.5);
+            box-shadow: 
+                0 8px 25px rgba(52, 211, 153, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 32px 20px;
+            color: #888;
+        }
+
+        .empty-state p {
+            font-weight: 600;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            line-height: 1.5;
+        }
+
+        @media (min-width: 480px) {
+            .empty-state {
+                padding: 40px 20px;
+            }
+            
+            .empty-state p {
+                font-size: 15px;
+            }
+        }
+
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 15px;
+            opacity: 0.3;
+        }
+
+        .reset-btn {
+            background: rgba(255, 255, 255, 0.25);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .reset-btn:hover {
+            background: white;
+            color: #8b5cf6;
+            border-color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 255, 255, 0.4);
+        }
+
+        .reset-btn:active {
+            transform: translateY(0);
+        }
+
+        .budget-input-inline {
+            margin-bottom: 24px;
+            background: rgba(30, 41, 59, 0.6);
+            padding: 18px;
+            border-radius: 22px;
+            box-shadow: 
+                0 8px 25px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(139, 92, 246, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+        }
+
+        .budget-input-inline input {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid rgba(139, 92, 246, 0.3);
+            border-radius: 16px;
+            font-size: 16px;
+            background: rgba(15, 23, 42, 0.5);
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            color: #ffffff;
+            transition: all 0.3s;
+            margin-bottom: 12px;
+            box-sizing: border-box;
+        }
+
+        .budget-input-inline input:last-of-type {
+            margin-bottom: 12px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+        }
+
+        .button-group button {
+            flex: 1;
+        }
+
+        .budget-input-inline input::placeholder {
+            color: rgba(156, 163, 175, 0.6);
+            font-weight: 500;
+        }
+
+        .budget-input-inline input:focus {
+            outline: none;
+            border-color: #8b5cf6;
+            box-shadow: 
+                0 0 0 4px rgba(139, 92, 246, 0.2),
+                0 0 20px rgba(139, 92, 246, 0.4);
+            background: rgba(15, 23, 42, 0.8);
+            transform: translateY(-1px);
+        }
+
+        .budget-input-inline input:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-set {
+            padding: 14px 30px;
+            background: rgba(139, 92, 246, 0.3);
+            color: white;
+            border: 2px solid rgba(139, 92, 246, 0.5);
+            border-radius: 16px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 
+                0 8px 32px rgba(139, 92, 246, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            font-size: 13px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .btn-set:hover {
+            background: rgba(139, 92, 246, 0.5);
+            border-color: rgba(139, 92, 246, 0.8);
+            transform: translateY(-2px);
+            box-shadow: 
+                0 12px 40px rgba(139, 92, 246, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-set:active {
+            transform: translateY(0);
+            background: rgba(139, 92, 246, 0.4);
+        }
+
+        .btn-set:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .expense-form-compact {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 24px;
+            background: rgba(30, 41, 59, 0.6);
+            padding: 18px;
+            border-radius: 22px;
+            box-shadow: 
+                0 8px 25px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(16, 185, 129, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+        }
+
+        .expense-form-compact input {
+            padding: 14px 18px;
+            border: 2px solid rgba(16, 185, 129, 0.3);
+            border-radius: 16px;
+            font-size: 16px;
+            background: rgba(15, 23, 42, 0.5);
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            color: #ffffff;
+            transition: all 0.3s;
+            box-sizing: border-box;
+            min-width: 0;
+        }
+
+        .expense-form-compact input::placeholder {
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .expense-form-compact input:first-child {
+            flex: 2 1 200px;
+            min-width: 150px;
+        }
+
+        .expense-form-compact input:nth-child(2) {
+            flex: 1 1 120px;
+            min-width: 100px;
+        }
+
+        .expense-form-compact input:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 
+                0 0 0 4px rgba(16, 185, 129, 0.2),
+                0 0 20px rgba(16, 185, 129, 0.4);
+            background: rgba(15, 23, 42, 0.8);
+        }
+
+        .btn-add {
+            padding: 16px 24px;
+            background: rgba(16, 185, 129, 0.3);
+            color: white;
+            border: 2px solid rgba(16, 185, 129, 0.5);
+            border-radius: 16px;
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 
+                0 8px 32px rgba(16, 185, 129, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            touch-action: manipulation;
+            width: 100%;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        @media (min-width: 480px) {
+            .btn-add {
+                padding: 14px 24px;
+                border-radius: 16px;
+                font-size: 13px;
+                width: auto;
+            }
+        }
+
+        .btn-add:hover {
+            background: rgba(16, 185, 129, 0.5);
+            border-color: rgba(16, 185, 129, 0.8);
+            transform: translateY(-2px);
+            box-shadow: 
+                0 12px 40px rgba(16, 185, 129, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-add:active {
+            transform: translateY(0);
+            background: rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-add i {
+            font-size: 14px;
+        }
+
+        .add-money-btn {
+            padding: 14px 30px;
+            background: rgba(59, 130, 246, 0.3);
+            color: white;
+            border: 2px solid rgba(59, 130, 246, 0.5);
+            border-radius: 16px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 
+                0 8px 32px rgba(59, 130, 246, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            font-size: 13px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .add-money-btn:hover {
+            background: rgba(59, 130, 246, 0.5);
+            border-color: rgba(59, 130, 246, 0.8);
+            transform: translateY(-2px);
+            box-shadow: 
+                0 12px 40px rgba(59, 130, 246, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        .add-money-btn:active {
+            transform: translateY(0);
+            background: rgba(59, 130, 246, 0.4);
+        }
+
+        .add-money-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .add-money-btn i {
+            font-size: 14px;
+        }
+
+        /* Mobile Optimizations */
+        @media (max-width: 479px) {
+            body {
+                padding: 10px;
+            }
+
+            .header {
+                padding: 24px 20px;
+            }
+
+            .header-icon {
+                font-size: 42px;
+                margin-bottom: 12px;
+            }
+
+            .header h1 {
+                font-size: 26px;
+                margin-bottom: 8px;
+                letter-spacing: -1px;
+            }
+
+            .header p {
+                font-size: 11px;
+                letter-spacing: 1.5px;
+                line-height: 1.4;
+            }
+
+            .content {
+                padding: 18px 16px;
+            }
+
+            .card {
+                border-radius: 16px;
+                padding: 18px 16px;
+                margin-bottom: 16px;
+            }
+
+            .card h2 {
+                font-size: 17px;
+                margin-bottom: 16px;
+                gap: 10px;
+            }
+
+            .stats-grid {
+                gap: 12px;
+                margin-bottom: 16px;
+            }
+
+            .stat-card {
+                border-radius: 14px;
+                padding: 16px 14px;
+            }
+
+            .stat-card .label {
+                font-size: 9px;
+                margin-bottom: 10px;
+                letter-spacing: 1.5px;
+            }
+
+            .stat-card .value {
+                font-size: 24px;
+                letter-spacing: -1px;
+            }
+
+            .budget-input-inline {
+                margin-bottom: 18px;
+            }
+
+            .budget-input-inline input {
+                width: 100%;
+                padding: 16px;
+                border-radius: 14px;
+            }
+
+            .btn-set,
+            .add-money-btn {
+                padding: 16px 24px;
+                border-radius: 12px;
+                font-size: 14px;
+            }
+
+            .progress-bar {
+                height: 28px;
+                border-radius: 12px;
+                margin-bottom: 14px;
+            }
+
+            .progress-fill {
+                font-size: 13px;
+            }
+
+            .time-remaining {
+                font-size: 13px;
+                line-height: 1.5;
+            }
+
+            .expense-form-compact {
+                flex-direction: column;
+                gap: 10px;
+                margin-bottom: 18px;
+            }
+
+            .expense-form-compact input {
+                width: 100%;
+                padding: 16px;
+                border-radius: 14px;
+            }
+
+            .btn-add {
+                width: 100%;
+                padding: 16px 24px;
+                border-radius: 12px;
+                font-size: 14px;
+            }
+
+            .expense-item {
+                border-radius: 12px;
+                padding: 14px;
+                margin-bottom: 10px;
+            }
+
+            .expense-item .name {
+                font-size: 14px;
+                margin-bottom: 5px;
+            }
+
+            .expense-item .date {
+                font-size: 10px;
+            }
+
+            .expense-item .amount {
+                font-size: 18px;
+                letter-spacing: -0.5px;
+            }
+
+            .delete-btn {
+                width: 36px;
+                height: 36px;
+                min-width: 36px;
+                min-height: 36px;
+                border-radius: 10px;
+                font-size: 14px;
+                margin-left: 10px;
+            }
+
+            .alert {
+                padding: 14px 16px;
+                border-radius: 12px;
+                margin-bottom: 14px;
+                gap: 10px;
+                font-size: 13px;
+                line-height: 1.4;
+            }
+
+            .reset-btn {
+                padding: 10px 18px;
+                border-radius: 20px;
+                font-size: 11px;
+                margin-top: 12px;
+                gap: 6px;
+            }
+
+            .empty-state {
+                padding: 32px 20px;
+            }
+
+            .empty-state p {
+                font-size: 14px;
+                line-height: 1.5;
+            }
+        }
+
+        /* Improve touch targets */
+        button, input, .stat-card {
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+
+        input {
+            user-select: text;
+            -webkit-user-select: text;
+        }
+
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-content">
+                <i class="fas fa-chart-pie header-icon"></i>
+                <h1>Budget Tracker</h1>
+                <p id="currentPeriod">Set your budget period</p>
+                <button class="reset-btn" onclick="resetBudget()">
+                    <i class="fas fa-sync-alt"></i>
+                    New Period
+                </button>
+            </div>
+        </div>
+
+        <div class="content">
+            <div id="alertContainer"></div>
+
+            <!-- Budget Input (Inline) -->
+            <div class="budget-input-inline">
+                <input type="number" id="budgetAmount" placeholder="Set budget amount" min="0" step="0.01">
+                <input type="number" id="budgetDays" placeholder="Days (e.g., 30)" min="1" step="1">
+                <div class="button-group">
+                    <button class="btn-set" onclick="setBudget()">Set</button>
+                    <button class="add-money-btn" onclick="addMoney()">
+                        <i class="fas fa-plus-circle"></i>
+                        Add
+                    </button>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <i class="fas fa-piggy-bank icon" style="color: #a78bfa;"></i>
+                    <div class="label">Total Budget</div>
+                    <div class="value" id="displayTotalBudget">$0</div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-coins icon" style="color: #34d399;"></i>
+                    <div class="label">Remaining</div>
+                    <div class="value" id="displayRemaining">$0</div>
+                </div>
+                <div class="stat-card danger">
+                    <i class="fas fa-calendar-day icon" style="color: #f87171;"></i>
+                    <div class="label">Spent Today</div>
+                    <div class="value" id="displaySpentToday">$0</div>
+                </div>
+                <div class="stat-card success">
+                    <i class="fas fa-receipt icon" style="color: #c084fc;"></i>
+                    <div class="label">Total Spent</div>
+                    <div class="value" id="displaySpent">$0</div>
+                </div>
+            </div>
+
+            <!-- Progress Card -->
+            <div class="card">
+                <h2>
+                    <i class="fas fa-chart-line"></i>
+                    Budget Progress
+                </h2>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressBar">0%</div>
+                </div>
+                <div class="time-remaining">
+                    Day <strong id="currentDay">0</strong> of <strong id="totalDays">0</strong> • <strong id="daysRemaining">0</strong> days left
+                </div>
+                <div class="daily-average" id="dailyAverage" style="display: none;">
+                    Daily average: <strong id="avgPerDay">$0.00</strong>
+                </div>
+            </div>
+
+            <!-- Add Expense (Compact) -->
+            <div class="expense-form-compact">
+                <input type="text" id="expenseName" placeholder="Expense name">
+                <input type="number" id="expenseAmount" placeholder="$0.00" min="0" step="0.01">
+                <button class="btn-add" onclick="addExpense()">
+                    <i class="fas fa-plus"></i>
+                    Add
+                </button>
+            </div>
+
+            <!-- Expense List -->
+            <div class="card">
+                <h2>
+                    <i class="fas fa-list-alt"></i>
+                    Expenses
+                </h2>
+                <div id="expenseList" class="expense-list">
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>No expenses yet. Start tracking above!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let budgetData = {
+            totalBudget: 0,
+            totalDays: 0,
+            startDate: null,
+            endDate: null,
+            expenses: []
+        };
+
+        // Initialize
+        function init() {
+            loadData();
+            updatePeriodDisplay();
+            updateDisplay();
+            
+            // Add keyboard support for Enter key
+            document.getElementById('budgetAmount').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (budgetData.totalBudget === 0) {
+                        setBudget();
+                    } else {
+                        addMoney();
+                    }
+                }
+            });
+            
+            document.getElementById('budgetDays').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    setBudget();
+                }
+            });
+            
+            document.getElementById('expenseName').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    document.getElementById('expenseAmount').focus();
+                }
+            });
+            
+            document.getElementById('expenseAmount').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addExpense();
+                }
+            });
+        }
+
+        // Update period display
+        function updatePeriodDisplay() {
+            if (budgetData.startDate && budgetData.totalDays > 0) {
+                const start = new Date(budgetData.startDate);
+                const end = new Date(budgetData.endDate);
+                const startStr = start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                const endStr = end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                document.getElementById('currentPeriod').textContent = `${startStr} - ${endStr} (${budgetData.totalDays} days)`;
+            } else {
+                document.getElementById('currentPeriod').textContent = 'Set your budget period';
+            }
+        }
+
+        // Load data from localStorage
+        function loadData() {
+            const saved = localStorage.getItem('budgetTracker');
+            if (saved) {
+                budgetData = JSON.parse(saved);
+            }
+        }
+
+        // Save data to localStorage
+        function saveData() {
+            localStorage.setItem('budgetTracker', JSON.stringify(budgetData));
+        }
+
+        // Set budget with custom days and visual feedback
+        function setBudget() {
+            const budget = parseFloat(document.getElementById('budgetAmount').value);
+            const days = parseInt(document.getElementById('budgetDays').value);
+
+            if (!budget || budget <= 0) {
+                alert('Please enter a valid budget amount');
+                return;
+            }
+
+            if (!days || days <= 0) {
+                alert('Please enter a valid number of days');
+                return;
+            }
+
+            budgetData.totalBudget = budget;
+            budgetData.totalDays = days;
+            budgetData.startDate = new Date().toISOString();
+            
+            // Calculate end date
+            const endDate = new Date();
+            endDate.setDate(endDate.getDate() + days);
+            budgetData.endDate = endDate.toISOString();
+            
+            saveData();
+            document.getElementById('budgetAmount').value = '';
+            document.getElementById('budgetDays').value = '';
+            
+            // Add pulse animation to budget card
+            const budgetCard = document.querySelector('.stat-card');
+            if (budgetCard) {
+                budgetCard.classList.add('pulse');
+                setTimeout(() => budgetCard.classList.remove('pulse'), 500);
+            }
+            
+            updatePeriodDisplay();
+            updateDisplay();
+        }
+
+        // Add money to budget with visual feedback
+        function addMoney() {
+            const amount = parseFloat(document.getElementById('budgetAmount').value);
+
+            if (!amount || amount <= 0) {
+                alert('Please enter a valid amount to add');
+                return;
+            }
+
+            if (budgetData.totalBudget === 0) {
+                alert('Please set a budget first');
+                return;
+            }
+
+            budgetData.totalBudget += amount;
+            
+            saveData();
+            document.getElementById('budgetAmount').value = '';
+            
+            // Add pulse animation to budget and remaining cards
+            const budgetCard = document.querySelector('.stat-card');
+            const remainingCard = document.querySelectorAll('.stat-card')[1];
+            
+            if (budgetCard) {
+                budgetCard.classList.add('pulse');
+                setTimeout(() => budgetCard.classList.remove('pulse'), 500);
+            }
+            
+            if (remainingCard) {
+                remainingCard.classList.add('pulse');
+                setTimeout(() => remainingCard.classList.remove('pulse'), 500);
+            }
+            
+            updateDisplay();
+        }
+
+        // Reset budget for new period
+        function resetBudget() {
+            if (confirm('Start a new budget period? This will clear all current expenses and budget.')) {
+                budgetData = {
+                    totalBudget: 0,
+                    totalDays: 0,
+                    startDate: null,
+                    endDate: null,
+                    expenses: []
+                };
+                saveData();
+                updatePeriodDisplay();
+                updateDisplay();
+            }
+        }
+
+        // Add expense with visual feedback
+        function addExpense() {
+            const name = document.getElementById('expenseName').value.trim();
+            const amount = parseFloat(document.getElementById('expenseAmount').value);
+
+            if (!name) {
+                alert('Please enter an expense name');
+                return;
+            }
+
+            if (!amount || amount <= 0) {
+                alert('Please enter a valid amount');
+                return;
+            }
+
+            budgetData.expenses.push({
+                id: Date.now(),
+                name: name,
+                amount: amount,
+                date: new Date().toISOString()
+            });
+
+            saveData();
+            document.getElementById('expenseName').value = '';
+            document.getElementById('expenseAmount').value = '';
+            
+            // Add pulse animation to relevant stat cards
+            const statCards = document.querySelectorAll('.stat-card');
+            if (statCards.length >= 4) {
+                statCards[2].classList.add('pulse'); // Spent Today
+                statCards[3].classList.add('pulse'); // Total Spent
+                statCards[1].classList.add('pulse'); // Remaining
+                setTimeout(() => {
+                    statCards[2].classList.remove('pulse');
+                    statCards[3].classList.remove('pulse');
+                    statCards[1].classList.remove('pulse');
+                }, 500);
+            }
+            
+            updateDisplay();
+        }
+
+        // Delete expense with animation
+        function deleteExpense(id) {
+            const expenseElement = event.target.closest('.expense-item');
+            if (expenseElement) {
+                expenseElement.classList.add('removing');
+                setTimeout(() => {
+                    budgetData.expenses = budgetData.expenses.filter(exp => exp.id !== id);
+                    saveData();
+                    updateDisplay();
+                }, 300);
+            } else {
+                budgetData.expenses = budgetData.expenses.filter(exp => exp.id !== id);
+                saveData();
+                updateDisplay();
+            }
+        }
+
+        // Update display
+        function updateDisplay() {
+            if (budgetData.totalBudget === 0 || !budgetData.startDate) {
+                document.getElementById('displayTotalBudget').textContent = 'Not Set';
+                document.getElementById('displayRemaining').textContent = '$0.00';
+                document.getElementById('displaySpent').textContent = '$0.00';
+                document.getElementById('displaySpentToday').textContent = '$0.00';
+                document.getElementById('currentDay').textContent = '0';
+                document.getElementById('totalDays').textContent = '0';
+                document.getElementById('daysRemaining').textContent = '0';
+            } else {
+                const totalSpent = budgetData.expenses.reduce((sum, exp) => sum + exp.amount, 0);
+                const remaining = budgetData.totalBudget - totalSpent;
+                const percentSpent = budgetData.totalBudget > 0 ? (totalSpent / budgetData.totalBudget) * 100 : 0;
+
+                // Calculate spent today
+                const today = new Date().toDateString();
+                const spentToday = budgetData.expenses
+                    .filter(exp => new Date(exp.date).toDateString() === today)
+                    .reduce((sum, exp) => sum + exp.amount, 0);
+
+                // Calculate days progress
+                const now = new Date();
+                const start = new Date(budgetData.startDate);
+                const end = new Date(budgetData.endDate);
+                
+                const daysPassed = Math.floor((now - start) / (1000 * 60 * 60 * 24)) + 1;
+                const currentDay = Math.min(Math.max(daysPassed, 1), budgetData.totalDays);
+                const daysRemaining = Math.max(budgetData.totalDays - daysPassed, 0);
+
+                // Update stats
+                document.getElementById('displayTotalBudget').textContent = '$' + budgetData.totalBudget.toFixed(2);
+                document.getElementById('displayRemaining').textContent = '$' + remaining.toFixed(2);
+                document.getElementById('displaySpent').textContent = '$' + totalSpent.toFixed(2);
+                document.getElementById('displaySpentToday').textContent = '$' + spentToday.toFixed(2);
+
+                // Update progress bar
+                const progressBar = document.getElementById('progressBar');
+                progressBar.style.width = Math.min(percentSpent, 100) + '%';
+                
+                // Only show percentage if bar is wide enough (at least 5%)
+                if (percentSpent >= 5) {
+                    progressBar.textContent = percentSpent.toFixed(1) + '%';
+                } else {
+                    progressBar.textContent = '';
+                }
+                
+                progressBar.className = 'progress-fill';
+                
+                if (percentSpent >= 90) {
+                    progressBar.classList.add('danger');
+                } else if (percentSpent >= 70) {
+                    progressBar.classList.add('warning');
+                }
+
+                // Update time remaining
+                document.getElementById('currentDay').textContent = currentDay;
+                document.getElementById('totalDays').textContent = budgetData.totalDays;
+                document.getElementById('daysRemaining').textContent = daysRemaining;
+
+                // Calculate and display daily average
+                const daysForAvg = Math.max(currentDay, 1);
+                const dailyAvg = totalSpent / daysForAvg;
+                const dailyAvgElement = document.getElementById('dailyAverage');
+                if (totalSpent > 0 && daysForAvg > 0) {
+                    document.getElementById('avgPerDay').textContent = '$' + dailyAvg.toFixed(2);
+                    dailyAvgElement.style.display = 'block';
+                } else {
+                    dailyAvgElement.style.display = 'none';
+                }
+
+                // Update alerts
+                updateAlerts(remaining, totalSpent, percentSpent, daysRemaining, budgetData.totalDays, currentDay);
+            }
+
+            // Update expense list
+            updateExpenseList();
+        }
+
+        // Update alerts
+        function updateAlerts(remaining, totalSpent, percentSpent, daysRemaining, daysInMonth, currentDay) {
+            const alertContainer = document.getElementById('alertContainer');
+            alertContainer.innerHTML = '';
+
+            const warningIcon = '<i class="fas fa-exclamation-triangle"></i>';
+            const successIcon = '<i class="fas fa-check-circle"></i>';
+            const infoIcon = '<i class="fas fa-info-circle"></i>';
+
+            if (budgetData.monthlyBudget === 0) {
+                alertContainer.innerHTML = '<div class="alert alert-warning">' + infoIcon + '<span>Set your monthly budget to start tracking!</span></div>';
+                return;
+            }
+
+            if (remaining < 0) {
+                alertContainer.innerHTML = '<div class="alert alert-danger">' + warningIcon + '<span>You have exceeded your budget by $' + Math.abs(remaining).toFixed(2) + '!</span></div>';
+            } else if (percentSpent >= 90) {
+                alertContainer.innerHTML = '<div class="alert alert-danger">' + warningIcon + '<span>You have used ' + percentSpent.toFixed(1) + '% of your monthly budget!</span></div>';
+            } else if (percentSpent >= 75) {
+                alertContainer.innerHTML = '<div class="alert alert-warning">' + warningIcon + '<span>You have used ' + percentSpent.toFixed(1) + '% of your monthly budget.</span></div>';
+            } else if (daysRemaining <= 3 && daysRemaining > 0) {
+                alertContainer.innerHTML = '<div class="alert alert-warning">' + infoIcon + '<span>Only ' + daysRemaining + ' days left in this month!</span></div>';
+            } else {
+                // Calculate if on track
+                const expectedSpent = (currentDay / daysInMonth) * budgetData.monthlyBudget;
+                if (totalSpent > expectedSpent * 1.2) {
+                    alertContainer.innerHTML = '<div class="alert alert-warning">' + infoIcon + '<span>You\'re spending faster than expected this month!</span></div>';
+                } else if (totalSpent < expectedSpent * 0.8 && currentDay > 5) {
+                    alertContainer.innerHTML = '<div class="alert alert-success">' + successIcon + '<span>Great job! You\'re staying under budget!</span></div>';
+                }
+            }
+        }
+
+        // Update expense list
+        function updateExpenseList() {
+            const expenseList = document.getElementById('expenseList');
+            
+            if (budgetData.expenses.length === 0) {
+                expenseList.innerHTML = '<div class="empty-state"><p>No expenses yet. Add your first expense above!</p></div>';
+                return;
+            }
+
+            // Store previous IDs to detect new items
+            const previousIds = Array.from(expenseList.querySelectorAll('.expense-item')).map(el => 
+                el.dataset && el.dataset.id ? el.dataset.id : null
+            ).filter(id => id !== null);
+
+            const sortedExpenses = [...budgetData.expenses].sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            expenseList.innerHTML = sortedExpenses.map(expense => {
+                const date = new Date(expense.date).toLocaleDateString('en-US', { 
+                    month: 'short', 
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                // Check if this is a new expense
+                const isNew = !previousIds.includes(String(expense.id));
+                
+                return `
+                    <div class="expense-item ${isNew ? 'new' : ''}" data-id="${expense.id}">
+                        <div class="info">
+                            <div class="name">${expense.name}</div>
+                            <div class="date">${date}</div>
+                        </div>
+                        <div class="amount">$${expense.amount.toFixed(2)}</div>
+                        <button class="delete-btn" onclick="deleteExpense(${expense.id})">
+                            <i class="fas fa-trash-alt"></i>
+                            Delete
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Load data on page load
+        init();
+    </script>
+</body>
+</html>
